@@ -1,8 +1,7 @@
 <FlatButton@ButtonBehavior+Label>:
     font_size: 14
 
-
-<OperationWindow>
+<OperationWindow>:
     id: main_win
     orientation: 'vertical'
     canvas.before:
@@ -77,7 +76,7 @@
                         size: self.size
                         pos: self.pos
                 FlatButton:
-                    text: 'Oty'
+                    text: 'Qty'
                     size_hint_x: .1
                 FlatButton:
                     text: 'Product Code'
@@ -105,6 +104,7 @@
                 TextInput:
                     id: qty_inp
                     size_hint_x: .1
+                    text: '1'
                 TextInput:
                     id: code_inp
                     size_hint_x: .3
@@ -113,18 +113,23 @@
                 TextInput:
                     id: disc_inp
                     size_hint_x: .1
+                    text: '0.00'
                 TextInput:
                     id: disc_perc_inp
                     size_hint_x: .1
+                    text: '0'
                 TextInput:
                     id: vat_inp
                     size_hint_x: .1
+                    text: '15%'
                 TextInput:
                     id: price_inp
                     size_hint_x: .1
+                    text: '0.00'
                 TextInput:
                     id: total_inp
                     size_hint_x: .2
+                    text: '0.00'
             BoxLayout:
                 id: add_to_cart
                 orientation: 'vertical'
@@ -156,9 +161,12 @@
                         text: 'Product Total'
                         size_hint_x: .2
 
-                GridLayout:
-                    id: products
-                    cols: 1
+                ScrollView:
+                    GridLayout:
+                        id: products
+                        cols: 1
+                        size_hint_y: None
+                        height: self.minimum_height
 
         BoxLayout:
             id: preview
@@ -168,7 +176,7 @@
             TextInput:
                 id: receipt_preview
                 readonly: True
-                text: 'The Collector\n 123 Main Str\nKnowhere, Space\n\nTel: (+254)-7417-033-21\nReceipt No: \nDate: \n\n'
+                text: 'The Collector\n123 Main Str\nKnowhere, Space\n\nTel: (+254)-7417-033-21\nReceipt No: \nDate: \n\n'
 
     BoxLayout:
         id: footer
@@ -182,4 +190,14 @@
                 size: self.size
         Label:
             text: 'maintained by @GoddieOkaka'
-
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        padding: 10
+        spacing: 10
+        Button:
+            text: 'Complete Transaction'
+            on_release: root.complete_transaction()
+        Button:
+            text: 'Print Receipt'
+            on_release: root.print_receipt()
