@@ -1,1 +1,124 @@
+<FlatButton@ButtonBehavior+Label>:
+    font_size: 16
 
+<SignupWindow>:
+    id: main_win
+    orientation: "vertical"
+    spacing: 10
+    space_x: self.size[0]/3
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        canvas.before:
+            Color:
+                rgba: (0.16, 0.4, 0.64, 1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            text: "Sign Up"
+            bold: True
+            size_hint_x: .9
+
+        FlatButton:
+            text: "x"
+            size_hint_x: .1
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: main_win.space_x, 10
+
+        BoxLayout:
+            orientation: "vertical"
+            spacing: 10
+            size_hint_y: None
+            height: 300
+
+            Label:
+                id: info
+                text: ''
+                markup: True
+                size_hint_y: None
+                height: 20
+
+            TextInput:
+                id: first_name
+                hint_text: "First Name"
+                multiline: False
+                focus: True
+                on_text_validate: last_name.focus = True
+
+            TextInput:
+                id: last_name
+                hint_text: "Last Name"
+                multiline: False
+                on_text_validate: username_field.focus = True
+
+            TextInput:
+                id: username_field
+                hint_text: "Username"
+                multiline: False
+                on_text_validate: designation_field.focus = True
+
+            TextInput:
+                id: designation_field
+                hint_text: "Designation (Operator/Administrator)"
+                multiline: False
+                on_text_validate: pwd_field.focus = True
+
+            TextInput:
+                id: pwd_field
+                hint_text: "Password"
+                multiline: False
+                password: True
+                on_text_validate: confirm_pwd_field.focus = True
+
+            TextInput:
+                id: confirm_pwd_field
+                hint_text: "Confirm Password"
+                multiline: False
+                password: True
+                on_text_validate: root.register_user()
+
+        Label:
+            id: sp
+            size_hint_y: None
+            height: 40
+
+        Button:
+            text: "Sign Up"
+            size_hint_y: None
+            height: 40
+            background_color: (0.16, 0.4, 0.64, 1)
+            background_normal: ''
+            on_release: root.register_user()
+
+        # TextView equivalent for "I already have an account"
+        FlatButton:
+            text: "[color=#0000FF]I already have an account[/color]"
+            markup: True
+            size_hint_y: None
+            height: 40
+            on_release: root.go_to_signin()  # Calls a method to navigate to sign-in page
+
+        Label:
+            id: sp2
+    BoxLayout:
+        id: footer
+        size_hint_y:None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: (0.16, 0.4, 0.64, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Software by Greatlink Company LTD'
