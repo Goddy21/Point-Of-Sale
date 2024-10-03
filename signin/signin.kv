@@ -18,7 +18,7 @@
         height: 50
         canvas.before:
             Color:
-                rgba: (.06,.45,.45,1)
+                rgba: (0.16, 0.4, 0.64, 1)
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -30,44 +30,77 @@
         FlatButton:
             text: "x"
             size_hint_x: .1
+
     BoxLayout:
         orientation: "vertical"
         padding: main_win.space_x, 10
-        #spacing: 20
+
         BoxLayout:
             orientation: "vertical"
             spacing: 10
             size_hint_y: None
             height: 100
+
             Label:
                 id: info
                 text: ''
                 markup: True
                 size_hint_y: None
                 height: 20
+
             TextInput:
                 id: username_field
                 hint_text: "Username"
                 multiline: False
                 focus: True
                 on_text_validate: pwd_field.focus = True
+
             TextInput:
                 id: pwd_field
                 hint_text: "Password"
                 multiline: False
                 password: True
                 on_text_validate: root.validate_user()
+
         Label:
             id: sp
             size_hint_y: None
             height: 40
+
         Button:
             text: "Sign In"
             size_hint_y: None
             height: 40
-            background_color: (.06, .45, .45, 1)
+            background_color: (0.16, 0.4, 0.64, 1)
             background_normal: ''
             on_release: root.validate_user()
+
         Label:
             id: sp2
+            size_hint_y: None
+            height: 40
 
+        # Add a FlatButton that says "I don't have an account"
+        FlatButton:
+            text: "[color=#0000FF]I don't have an account[/color]"
+            markup: True
+            size_hint_y: None
+            height: 40
+            on_release: root.go_to_signup()
+
+        Label:
+            id: sp3
+            size_hint_y: None
+            height: 40
+    BoxLayout:
+        id: footer
+        size_hint_y:None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: (0.16, 0.4, 0.64, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Software by Greatlink Company LTD'
