@@ -16,7 +16,7 @@
         height: 40
         canvas.before:
             Color:
-                rgba: (.06, .45, .45, 1)
+                rgba: (0.16, 0.4, 0.64, 1)
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -37,25 +37,25 @@
         height: 50
         canvas.before:
             Color:
-                rgba: (.06, .45, .45, 1)
+                rgba: (0.2, 0.5, 0.8, 1)
             Rectangle:
                 size: self.size
                 pos: self.pos
         Button:
             text: 'Current Item'
             background_normal: ''
-            background_color: (.06, .32, .32, 1)
+            background_color: (0.20, 0.48, 0.76, 1)
             size_hint_x: .4
         Button:
             id: cur_product
             text: 'Default Product'
             background_normal: ''
-            background_color: (.06, .4, .4, 1)
+            background_color: (0.22, 0.55, 0.88, 1)
         Button:
             id: cur_price
             text: '0.00'
             background_normal: ''
-            background_color: (.06, .65, .65, 1)
+            background_color: (0.24, 0.6, 0.96, 1)
             size_hint_x: .2
     BoxLayout:
         padding: 10
@@ -71,7 +71,7 @@
                 height: 40
                 canvas.before:
                     Color:
-                        rgba: (.06, .45, .45, 1)
+                        rgba: (0.2, 0.5, 0.8, 1)
                     Rectangle:
                         size: self.size
                         pos: self.pos
@@ -110,6 +110,7 @@
                     size_hint_x: .3
                     multiline: False
                     on_text_validate: root.update_purchases()
+                    focus:True
                 TextInput:
                     id: disc_inp
                     size_hint_x: .1
@@ -138,7 +139,7 @@
                     height: 30
                     canvas.before:
                         Color:
-                            rgba: (.06, .45, .45, 1)
+                            rgba: (0.2, 0.5, 0.8, 1)
                         Rectangle:
                             size: self.size
                             pos: self.pos
@@ -177,6 +178,25 @@
                 id: receipt_preview
                 readonly: True
                 text: 'The Collector\n123 Main Str\nKnowhere, Space\n\nTel: (+254)-7417-033-21\nReceipt No: \nDate: \n\n'
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: (0.2, 0.5, 0.8, 1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Button:
+            text: 'Complete Transaction'
+            background_color: (0.16, 0.4, 0.64, 1)
+            on_release: root.complete_transaction()
+        Button:
+            text: 'Print Receipt'
+            background_color: (0.16, 0.4, 0.64, 1)
+            on_release: root.print_receipt()
 
     BoxLayout:
         id: footer
@@ -184,20 +204,9 @@
         height: 30
         canvas.before:
             Color:
-                rgba: (.06, .47, .47, 1)
+                rgba: (0.16, 0.4, 0.64, 1)
             Rectangle:
                 pos: self.pos
                 size: self.size
         Label:
-            text: 'maintained by @GoddieOkaka'
-    BoxLayout:
-        size_hint_y: None
-        height: 50
-        padding: 10
-        spacing: 10
-        Button:
-            text: 'Complete Transaction'
-            on_release: root.complete_transaction()
-        Button:
-            text: 'Print Receipt'
-            on_release: root.print_receipt()
+            text: 'Software by Greatlink Company LTD'
