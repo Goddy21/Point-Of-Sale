@@ -1,6 +1,14 @@
 import os
 os.environ['KIVY_LOG_LEVEL'] = 'debug'
 
+from quickbooks import QuickBooks
+from quickbooks.objects.salesreceipt import SalesReceipt
+from quickbooks.objects.customer import Customer
+from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
+from quickbooks.objects.item import Item
+
+
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -16,9 +24,39 @@ Config.set('kivy', 'window', 'sdl2')
 
 Builder.load_file('till_operator/operation.kv')
 
+
+# Assume you have a function to get the access token
+def get_quickbooks_token():
+    # Implement the OAuth flow to get the token here
+    # This is just a placeholder. Replace it with your actual token retrieval logic.
+    return {
+        'access_token': 'your_access_token_here',  # Replace with actual access token
+        'refresh_token': 'your_refresh_token_here',  # Optional, if you need it
+        'expires_in': 3600  # Optional, if you need it
+    }
+
+
 class OperationWindow(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+         # Define CLIENT_ID and CLIENT_SECRET
+        CLIENT_ID = os.environ.get('CLIENT_ID')  # Or define them directly
+        CLIENT_SECRET = os.environ.get('CLIENT_SECRET')  # Or define them directly
+
+        # Get the QuickBooks token
+        token = get_quickbooks_token()
+
+        # QuickBooks initialization
+        self.qb_client = QuickBooks(
+            sandbox=True,
+            consumer_key=CLIENT_ID,
+            consumer_secret=CLIENT_SECRET,
+            access_token=token['access_token'],
+            company_id='your_company_id'
+        )
+
+
         try:
             self.client = MongoClient('mongodb://127.0.0.1:27017/')
             self.db = self.client.silverpos
@@ -98,6 +136,7 @@ class OperationWindow(BoxLayout):
 
         # Clear the product code input for next entry
         self.ids.code_inp.text = ''
+        self.ids.code_inp.focus = True
 
     def update_preview(self, pname, pprice):
         receipt = self.ids.receipt_preview
@@ -136,6 +175,46 @@ class OperationWindow(BoxLayout):
         except Exception as e:
             print(f"Failed to print receipt: {e}")
             # Optionally, notify the user via the UI
+
+
+        # Create a new sales receipt
+    def create_sales_receipt(self, customer_name, total_amount, items):
+        sales_receipt = SalesReceipt()
+
+        # Fetch or create customer
+        customers = Customer.where("DisplayName = '{0}'".format(customer_name), qb=self.qb_client)
+        if not customers:
+            customer = Customer()
+            customer.DisplayName = customer_name
+            customer.save(qb=qbo_client)
+        else:
+            customer = customers[0]  # Fetch the first matched customer
+
+        sales_receipt.CustomerRef = customer.to_ref()
+
+        # Add items to the sales receipt
+        for item in items:
+            line = SalesItemLine()
+            line.Amount = item['amount']
+            line.SalesItemLineDetail = SalesItemLineDetail()
+
+            product_items = Item.where("Name = '{0}'".format(item['name']), qb=qb_client)
+            if product_items:
+                product_item = product_items[0]  # Fetch the first matched item
+                line.SalesItemLineDetail.ItemRef = product_item.to_ref()
+
+            sales_receipt.Line.append(line)
+
+        sales_receipt.save(qb=qb_client)
+
+
+    def update_inventory(product_code, new_qty):
+        item = Item.where("Sku = '{0}'".format(product_code), qb=self.qbo_client)
+        if item:
+            item.QtyOnHand = new_qty
+            item.save(qb=qbo_client)
+        else:
+            print(f"Item with SKU {product_code} not found in QuickBooks.")
 
     def complete_transaction(self):
         if not self.cart:
@@ -179,6 +258,18 @@ class OperationWindow(BoxLayout):
 
         # Reset the cart and UI
         self.reset_transaction()
+
+        items = []
+        for i, pcode in enumerate(self.cart):
+            product = self.stocks.find_one({'product_code': pcode})
+            if product:
+                items.append({
+                    'name': product['product_name'],
+                    'amount': self.qty[i] * product['product_price']
+                })
+        
+        # Push to QuickBooks
+        self.create_sales_receipt('CustomerName', self.total, items)
 
     def reset_transaction(self):
         self.cart.clear()
