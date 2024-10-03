@@ -23,7 +23,7 @@ Builder.load_string('''
     bcolor: (1, 1, 1, 1)
     canvas.before:
         Color: 
-            rgba: root.bcolor
+            rgba: (0.12, 0.32, 0.52, 1)
         Rectangle:
             size: self.size 
             pos: self.pos               
