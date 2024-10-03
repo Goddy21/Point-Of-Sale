@@ -36,6 +36,47 @@ class SigninWindow(BoxLayout):
         if uname == '' or passw == '':
             info.text = "[color=#FF0000]Username and/or password required[/color]"
         else:
+            user = users.find_one({'user_name': uname})
+            if user is None:
+                info.text = '[color=#FF0000]Invalid Username and/or password[/color]'
+            else:
+                passw = hashlib.sha256(passw.encode()).hexdigest()
+                if passw == user['password']:
+                    des = user['designation']
+                    info.text = ''
+                    self.parent.parent.parent.ids.scrn_op.children[0].ids.loggedin_user.text = uname
+                    if des == 'Administrator':
+                        self.parent.parent.current = 'scrn_admin'
+                    else:
+                        self.parent.parent.current = 'scrn_op'
+                else:
+                    info.text = "[color=#FF0000]Invalid username or password[/color]"
+
+    # Method to navigate to the sign-up screen
+    def go_to_signup(self):
+        self.parent.parent.current = 'scrn_signup'  # Assuming 'scrn_signup' is the sign-up screen name
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def validate_user(self):
+        client = MongoClient()
+        db = client.silverpos
+        users = db.users
+
+        user = self.ids.username_field
+        pwd = self.ids.pwd_field
+        info = self.ids.info
+
+        uname = user.text
+        passw = pwd.text
+
+        user.text = ''
+        pwd.text = ''
+
+        if uname == '' or passw == '':
+            info.text = "[color=#FF0000]Username and/or password required[/color]"
+        else:
             user = users.find_one({'user_name':uname})
             if user == None:
                 info.text = '[color=#FF0000]Invalid Username and/or password[/color]'
