@@ -17,7 +17,7 @@
         height: 30
         canvas.before:
             Color:
-                rgba: (.06, .45, .45, 1)
+                rgba: (0.16, 0.4, 0.64, 1)
             Rectangle:
                 size: self.size
                 pos: self.pos
@@ -60,7 +60,7 @@
             spacing: 3
             canvas.before:
                 Color:
-                    rgba: (.06, .40, .40, 1)
+                    rgba: (0.2, 0.5, 0.8, 1)
                 Rectangle:
                     size: self.size
                     pos: self.pos
@@ -69,7 +69,7 @@
                 text: 'Manage Users'
                 size_hint_y: .1
                 state: 'down'
-                background_color: (.06, .47, .47, 1)
+                background_color: (0.20, 0.48, 0.76, 1)
                 background_normal: ''
                 group: 'admin_navs'
                 on_state: root.change_screen(self)
@@ -77,7 +77,7 @@
                 id: products_toggle
                 text: 'Manage Products'
                 size_hint_y: .1
-                background_color: (.06, .47, .47, 1)
+                background_color: (0.22, 0.55, 0.88, 1)
                 background_normal: ''
                 group: 'admin_navs'
                 on_state: root.change_screen(self)
@@ -85,7 +85,7 @@
                 id: analysis_toggle
                 text: 'Product Analysis'
                 size_hint_y: .1
-                background_color: (.06, .47, .47, 1)
+                background_color: (0.24, 0.6, 0.96, 1)
                 background_normal: ''
                 group: 'admin_navs'
                 on_state: root.change_screen(self)
@@ -123,14 +123,17 @@
                                 Button:
                                     id: crud_add
                                     text: 'Add User'
+                                    background_color: (0.16, 0.4, 0.64, 1)
                                     on_release: root.add_user_fields()
                                 Button:
                                     id: crud_update
                                     text: 'Update User'
+                                    background_color: (0.16, 0.4, 0.64, 1)
                                     on_release: root.update_user_fields()
                                 Button:
                                     id: crud_remove
                                     text: 'Remove User'
+                                    background_color: (0.16, 0.4, 0.64, 1)
                                     on_release: root.remove_user_fields()
                 Screen:
                     id: scrn_product_content
@@ -156,14 +159,17 @@
                                 Button:
                                     id: crud_add_p
                                     text: 'Add Product'
+                                    background_color: (0.16, 0.4, 0.64, 1)
                                     on_release: root.add_product_fields()
                                 Button:
                                     id: crud_update_p
                                     text: 'Update Product'
+                                    background_color: (0.16, 0.4, 0.64, 1)
                                     on_release: root.update_product_fields()
                                 Button:
                                     id: crud_remove_p
                                     text: 'Remove Product'
+                                    background_color: (0.16, 0.4, 0.64, 1)
                                     on_release: root.remove_product_fields()
                 Screen:
                     id: scrn_analysis
@@ -177,11 +183,25 @@
                             height: 45
                             Spinner:
                                 id: target_product
+                                background_color: (0.12, 0.32, 0.52, 1)
                                 text: 'Choose Product'
                             Button:
                                 id: submit_analysis
                                 text: 'View Stats'
                                 size_hint_x: .3
+                                background_color: (0.12, 0.32, 0.52, 1)
                                 on_release: root.view_stats()
                         BoxLayout:
                             id: analysis_res
+    BoxLayout:
+        id: footer
+        size_hint_y:None
+        height: 30
+        canvas.before:
+            Color:
+                rgba: (0.16, 0.4, 0.64, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: 'Software by Greatlink Company LTD'
