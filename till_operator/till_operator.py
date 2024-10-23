@@ -8,6 +8,7 @@ from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
 from quickbooks.objects.item import Item
 
 
+from session_manager.session_manager import QuickBooksSessionManager
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -30,8 +31,8 @@ def get_quickbooks_token():
     # Implement the OAuth flow to get the token here
     # This is just a placeholder. Replace it with your actual token retrieval logic.
     return {
-        'access_token': 'your_access_token_here',  # Replace with actual access token
-        'refresh_token': 'your_refresh_token_here',  # Optional, if you need it
+        'access_token': 'eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..fRcrNxxTrMbg8s5mO0EoIw.6trr2Bh5i0eII3NFu8salH1IqHzGeUcAwgmztpf_gp7AZjfvkWZi583tszvGy3VVkQsIAXlvC6fniPD03bmkgCLiloWz9b9C6PNq2VxEqQ6oSg2Jhx3pNH9uS5qsuCqXXBaYFNUNDGdMwdwnrWu5eO3rvW_vLIzf_Afd0k9HKDvvlqqcqEuOsGh3jTo3X6pAf0Thgj_unJdwtYjRztuxN3CsbiKD_rGpYkMdP0XSjmvhC2EvNHq7mMv-oGMVcXPlPAX-9eXBgaEKANwQ1o9H3FNuNfulVQXrz9qq1ess1LRoZdmRKGLDaIWMK7Oe__IS0JJBh96YfyFk6YGT5dWoxipc6GTpRI076ZnXgwHZP1ldDTwS4oFhRo3o2z4WAnromckprbNCwCreyP7PbGQJd-2ssYtdnIFkUDj3CF4DvQWAO9Pry2h3lF8cJ2mgRBkodUatzjCU5SfqyLxJfmCCWFr7Xlmi_8w4uUEPuruaLXKXtbZZUbjLKjCtcVdvVLG76FFtGo5uQ9ECAq2MNVOFumP5FZp08a4kKq4O4ExiWDxnJ06kQb8DJPkKXGFUAavgpgngnzQennboFspPfdezHnuq1jVcyvjOL3tZ46CggL5mfAs0VHqC4SeypY1Je92wWMaivoDfJ1gjismlaMmmZ_5-6NVuv0564Nb_fyJZijyv5t3agg4c_0fZKLY3TsvWdvLQ08ftpdlqJSmixQcar_7kkZhfByNVCOcBHn3FCQYxnuvA0dqxQnucxMWmDBFWVf-OHrLKjV1SaAN-fPvh9G7wQ8SCF3SraAcSAYMpEoJpFnH_Uf7F9njf1f4Qzk87oEzALiQR_tYhrTEwKduMWEitTK6ur3CD6cco14sg38b4V3kSRzzShU55IxskruLp.gp204pUxBYX5J85yO-b7JA',  # Replace with actual access token
+        'refresh_token': 'AB11737801257u5KVpx8lhzqvsHIR7JgTfWcQsFlWPZDU5gjiZ',  # Optional, if you need it
         'expires_in': 3600  # Optional, if you need it
     }
 
@@ -40,21 +41,31 @@ class OperationWindow(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        session_manager = QuickBooksSessionManager()
+        qb_client = session_manager.get_quickbooks_client()
+
          # Define CLIENT_ID and CLIENT_SECRET
-        CLIENT_ID = os.environ.get('CLIENT_ID')  # Or define them directly
-        CLIENT_SECRET = os.environ.get('CLIENT_SECRET')  # Or define them directly
+        CLIENT_ID = os.environ.get('ABoqbaaHvyetO9NFXji3s0bVvf84DQ1WdSl3gchBwVMKgC9YuC')  # Or define them directly
+        CLIENT_SECRET = os.environ.get('RUIUp4VXT8A2EkaTD1z5cFoqIHQ65LsLfMj5f768')  # Or define them directly
 
         # Get the QuickBooks token
         token = get_quickbooks_token()
+        if not token or 'access_token' not in token:
+            print("Failed to retrieve a valid QuickBooks token.")
+            return
 
         # QuickBooks initialization
-        self.qb_client = QuickBooks(
+        try:
+            self.qb_client = QuickBooks(
             sandbox=True,
-            consumer_key=CLIENT_ID,
-            consumer_secret=CLIENT_SECRET,
-            access_token=token['access_token'],
-            company_id='your_company_id'
-        )
+            consumer_key=session_manager.client_id,
+            consumer_secret=session_manager.client_secret,
+            access_token=session_manager.access_token,
+            company_id=session_manager.company_id
+            )
+        except Exception as e:
+            print(f"Failed to initialize QuickBooks client: {e}")
+            return
 
 
         try:
@@ -181,31 +192,45 @@ class OperationWindow(BoxLayout):
     def create_sales_receipt(self, customer_name, total_amount, items):
         sales_receipt = SalesReceipt()
 
-        # Fetch or create customer
-        customers = Customer.where("DisplayName = '{0}'".format(customer_name), qb=self.qb_client)
+        try:
+            customers = Customer.where("DisplayName = '{0}'".format(customer_name), qb=self.qb_client)
+        except Exception as e:
+            print(f"Error fetching customer: {e}")
+            return
+
         if not customers:
             customer = Customer()
             customer.DisplayName = customer_name
-            customer.save(qb=qbo_client)
+            customer.save(qb=self.qb_client)
         else:
             customer = customers[0]  # Fetch the first matched customer
 
         sales_receipt.CustomerRef = customer.to_ref()
 
-        # Add items to the sales receipt
         for item in items:
             line = SalesItemLine()
             line.Amount = item['amount']
             line.SalesItemLineDetail = SalesItemLineDetail()
 
-            product_items = Item.where("Name = '{0}'".format(item['name']), qb=qb_client)
-            if product_items:
-                product_item = product_items[0]  # Fetch the first matched item
-                line.SalesItemLineDetail.ItemRef = product_item.to_ref()
+            try:
+                product_items = Item.where("Name = '{0}'".format(item['name']), qb=self.qb_client)
+                if product_items:
+                    product_item = product_items[0]  # Fetch the first matched item
+                    line.SalesItemLineDetail.ItemRef = product_item.to_ref()
+                else:
+                    print(f"Item '{item['name']}' not found.")
+                    continue  # Skip if the item is not found
+            except Exception as e:
+                print(f"Error fetching item '{item['name']}': {e}")
+                continue  # Skip if there was an error
 
             sales_receipt.Line.append(line)
 
-        sales_receipt.save(qb=qb_client)
+        try:
+            sales_receipt.save(qb=self.qb_client)
+        except Exception as e:
+            print(f"Error saving sales receipt: {e}")
+
 
 
     def update_inventory(product_code, new_qty):
@@ -275,7 +300,7 @@ class OperationWindow(BoxLayout):
         self.cart.clear()
         self.qty.clear()
         self.total = 0.00
-        self.ids.receipt_preview.text = 'The Collector\n123 Main Str\nKnowhere, Space\n\nTel: (+254)-7417-033-21\nReceipt No: \nDate: \n\n'
+        self.ids.receipt_preview.text = 'Rooted Guru\nPoint Of Sale\nSystem\n\nTel: (+254)-7266-100-18\nReceipt No:'+receipt_no+ '\nDate:'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+' \n\n'
         self.ids.cur_product.text = 'Default Product'
         self.ids.cur_price.text = '0.00'
         self.ids.products.clear_widgets()
