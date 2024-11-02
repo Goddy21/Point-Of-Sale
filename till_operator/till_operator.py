@@ -7,6 +7,7 @@ from quickbooks.objects.customer import Customer
 from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
 from quickbooks.objects.item import Item
 
+#Q70G1700700 8F
 
 from session_manager.session_manager import QuickBooksSessionManager
 
@@ -26,16 +27,6 @@ Config.set('kivy', 'window', 'sdl2')
 Builder.load_file('till_operator/operation.kv')
 
 
-# Assume you have a function to get the access token
-def get_quickbooks_token():
-    # Implement the OAuth flow to get the token here
-    # This is just a placeholder. Replace it with your actual token retrieval logic.
-    return {
-        'access_token': 'eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..fRcrNxxTrMbg8s5mO0EoIw.6trr2Bh5i0eII3NFu8salH1IqHzGeUcAwgmztpf_gp7AZjfvkWZi583tszvGy3VVkQsIAXlvC6fniPD03bmkgCLiloWz9b9C6PNq2VxEqQ6oSg2Jhx3pNH9uS5qsuCqXXBaYFNUNDGdMwdwnrWu5eO3rvW_vLIzf_Afd0k9HKDvvlqqcqEuOsGh3jTo3X6pAf0Thgj_unJdwtYjRztuxN3CsbiKD_rGpYkMdP0XSjmvhC2EvNHq7mMv-oGMVcXPlPAX-9eXBgaEKANwQ1o9H3FNuNfulVQXrz9qq1ess1LRoZdmRKGLDaIWMK7Oe__IS0JJBh96YfyFk6YGT5dWoxipc6GTpRI076ZnXgwHZP1ldDTwS4oFhRo3o2z4WAnromckprbNCwCreyP7PbGQJd-2ssYtdnIFkUDj3CF4DvQWAO9Pry2h3lF8cJ2mgRBkodUatzjCU5SfqyLxJfmCCWFr7Xlmi_8w4uUEPuruaLXKXtbZZUbjLKjCtcVdvVLG76FFtGo5uQ9ECAq2MNVOFumP5FZp08a4kKq4O4ExiWDxnJ06kQb8DJPkKXGFUAavgpgngnzQennboFspPfdezHnuq1jVcyvjOL3tZ46CggL5mfAs0VHqC4SeypY1Je92wWMaivoDfJ1gjismlaMmmZ_5-6NVuv0564Nb_fyJZijyv5t3agg4c_0fZKLY3TsvWdvLQ08ftpdlqJSmixQcar_7kkZhfByNVCOcBHn3FCQYxnuvA0dqxQnucxMWmDBFWVf-OHrLKjV1SaAN-fPvh9G7wQ8SCF3SraAcSAYMpEoJpFnH_Uf7F9njf1f4Qzk87oEzALiQR_tYhrTEwKduMWEitTK6ur3CD6cco14sg38b4V3kSRzzShU55IxskruLp.gp204pUxBYX5J85yO-b7JA',  # Replace with actual access token
-        'refresh_token': 'AB11737801257u5KVpx8lhzqvsHIR7JgTfWcQsFlWPZDU5gjiZ',  # Optional, if you need it
-        'expires_in': 3600  # Optional, if you need it
-    }
-
 
 class OperationWindow(BoxLayout):
     def __init__(self, **kwargs):
@@ -44,15 +35,9 @@ class OperationWindow(BoxLayout):
         session_manager = QuickBooksSessionManager()
         qb_client = session_manager.get_quickbooks_client()
 
-         # Define CLIENT_ID and CLIENT_SECRET
-        CLIENT_ID = os.environ.get('ABoqbaaHvyetO9NFXji3s0bVvf84DQ1WdSl3gchBwVMKgC9YuC')  # Or define them directly
-        CLIENT_SECRET = os.environ.get('RUIUp4VXT8A2EkaTD1z5cFoqIHQ65LsLfMj5f768')  # Or define them directly
+        self.payment_method = None  # Store selected payment method
+        self.available_payment_methods = ['Cash', 'Credit Card', 'Mobile Payment']
 
-        # Get the QuickBooks token
-        token = get_quickbooks_token()
-        if not token or 'access_token' not in token:
-            print("Failed to retrieve a valid QuickBooks token.")
-            return
 
         # QuickBooks initialization
         try:
@@ -156,8 +141,8 @@ class OperationWindow(BoxLayout):
 
         # Construct receipt header if not already present
         if "Receipt No:" not in receipt.text:
-            receipt.text += f"The Collector\n123 Main Str\nKnowhere, Space\n\n"
-            receipt.text += f"Tel: (+254)-7417-033-21\n\n"
+            receipt.text += f"\n\nRooted Guru Sales Receipt\n\n"
+            receipt.text += f"Tel: (+254)7266-100-18\n\n"
             receipt.text += f"Receipt No: {receipt_no}\n"
             receipt.text += f"Date: {date_str}\n\n"
 
@@ -172,20 +157,38 @@ class OperationWindow(BoxLayout):
         self.ids.cur_product.text = pname
         self.ids.cur_price.text = f"{float(pprice):.2f}"
 
+    def select_payment_method(self, method):
+        if method in self.available_payment_methods:
+            self.payment_method = method
+            print(f"Payment method selected: {self.payment_method}")
+        else:
+            print("Invalid payment method selected.")
+        
+        if (self.payment_method=='Cash'):
+            print("Methode used is cash")
+        elif (self.payment_method=="Credit Card"):
+            print("Method chosen is credit card")
+        elif (self.payment_method=="Mobile Payment"):
+            print("Method used is mobile payment")        
+
+
+
     def print_receipt(self):
         if self.printer is None:
             print("Printer not initialized.")
             return
 
         receipt_text = self.ids.receipt_preview.text
+        if self.payment_method:
+            receipt_text += f"\nPayment Method: {self.payment_method}\n"
+
         try:
-            # Format the receipt text if needed
             self.printer.text(receipt_text)
             self.printer.cut()
             print("Receipt printed successfully.")
         except Exception as e:
             print(f"Failed to print receipt: {e}")
-            # Optionally, notify the user via the UI
+
 
 
         # Create a new sales receipt
@@ -246,6 +249,11 @@ class OperationWindow(BoxLayout):
             print("Cart is empty.")
             return
 
+        # Prompt for payment method if not selected
+        if not self.payment_method:
+            print("Please select a payment method.")
+            return
+
         # Generate receipt number and date
         receipt_no = f"R{int(datetime.now().timestamp())}"
         date_str = datetime.now()
@@ -255,55 +263,49 @@ class OperationWindow(BoxLayout):
             'receipt_no': receipt_no,
             'date': date_str,
             'items': [],
-            'total': self.total
+            'total': self.total,
+            'payment_method': self.payment_method  # Store payment method
         }
 
+        # Populate transaction details
         for i, pcode in enumerate(self.cart):
-            try:
-                product = self.stocks.find_one({'product_code': pcode})
-                if product:
-                    transaction['items'].append({
-                        'product_code': pcode,
-                        'product_name': product['product_name'],
-                        'quantity': self.qty[i],
-                        'price': product['product_price'],
-                        'total': self.qty[i] * product['product_price']
-                    })
-            except Exception as e:
-                print(f"Error retrieving product {pcode}: {e}")
+            product = self.stocks.find_one({'product_code': pcode})
+            if product:
+                transaction['items'].append({
+                    'product_code': pcode,
+                    'product_name': product['product_name'],
+                    'quantity': self.qty[i],
+                    'price': product['product_price'],
+                    'total': self.qty[i] * product['product_price']
+                })
 
+        # Insert into database
         try:
             self.db.transactions.insert_one(transaction)
             print("Transaction saved to database.")
         except Exception as e:
             print(f"Failed to save transaction: {e}")
 
+        # Update receipt preview with payment method
+        self.ids.receipt_preview.text += f"Payment Method: {self.payment_method}\n"
+
         # Print the receipt
         self.print_receipt()
 
-        # Reset the cart and UI
+        # Reset the cart, payment method, and UI
         self.reset_transaction()
+        self.payment_method = None  # Reset payment method after transaction
 
-        items = []
-        for i, pcode in enumerate(self.cart):
-            product = self.stocks.find_one({'product_code': pcode})
-            if product:
-                items.append({
-                    'name': product['product_name'],
-                    'amount': self.qty[i] * product['product_price']
-                })
-        
-        # Push to QuickBooks
-        self.create_sales_receipt('CustomerName', self.total, items)
 
     def reset_transaction(self):
         self.cart.clear()
         self.qty.clear()
         self.total = 0.00
-        self.ids.receipt_preview.text = 'Rooted Guru\nPoint Of Sale\nSystem\n\nTel: (+254)-7266-100-18\nReceipt No:'+receipt_no+ '\nDate:'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+' \n\n'
+        #self.ids.receipt_preview.text = 'Rooted Guru\nPoint Of Sale\nSystem\n\nTel: (+254)-7266-100-18\nReceipt No:'+self.receipt_no+ '\nDate:'+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+' \n\n'
         self.ids.cur_product.text = 'Default Product'
         self.ids.cur_price.text = '0.00'
         self.ids.products.clear_widgets()
+
 
 class ProductLine(BoxLayout):
     def __init__(self, code, name, qty, disc, price, total, **kwargs):
