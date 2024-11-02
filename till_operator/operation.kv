@@ -30,7 +30,7 @@
             text: 'Okaka'
             color: (1, 1, 1, 1)
             underline:True
-            on_release: root.logout()
+            on_release: root.logout()     
     BoxLayout:
         id: current
         size_hint_y: None
@@ -177,7 +177,36 @@
             TextInput:
                 id: receipt_preview
                 readonly: True
-                text: 'The Collector\n123 Main Str\nKnowhere, Space\n\nTel: (+254)-7417-033-21\nReceipt No: \nDate: \n\n'
+                text: 'Rooted Guru'
+                bold: True
+                halign: "center"
+                font_name: 'RobotoMono-Regular' 
+                valign: "top"
+                padding: [5, 5]
+
+       # Payment method selection section
+    BoxLayout:
+        size_hint_y: None
+        height: 40
+        canvas.before:
+            Color:
+                rgba: (0.2, 0.5, 0.8, 1)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Button:
+            text: 'Cash'
+            background_color: (0.16, 0.4, 0.64, 1)
+            on_release: root.select_payment_method('Cash')
+        Button:
+            text: 'Credit Card'
+            background_color: (0.16, 0.4, 0.64, 1)
+            on_release: root.select_payment_method('Credit Card')
+        Button:
+            text: 'Mobile Payment'
+            background_color: (0.16, 0.4, 0.64, 1)
+            on_release: root.select_payment_method('Mobile Payment')            
+
     BoxLayout:
         size_hint_y: None
         height: 50
@@ -209,4 +238,4 @@
                 pos: self.pos
                 size: self.size
         Label:
-            text: 'Software by Greatlink Company LTD'
+            text: 'ROOTED GURU POINT OF SALE SYSTEM'
